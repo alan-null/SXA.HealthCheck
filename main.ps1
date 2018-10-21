@@ -58,7 +58,7 @@ $steps =
     Title       = "Field 'SiteMediaLibrary'";
     Description = "Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item";
     Version     = @{
-        From = 1710;
+        From = 1400;
         To   = "*";
     };
     Script      = {
@@ -80,7 +80,7 @@ $steps =
     Title       = "Field 'ThemesFolder'";
     Description = "Checks whether 'ThemesFolder' field contains proper reference to a site specific themes folder item";
     Version     = @{
-        From = 1710;
+        From = 1400;
         To   = "*";
     };
     Script      = {
@@ -102,7 +102,7 @@ $steps =
     Title       = "Field 'AdditionalChildren'";
     Description = "Checks whether 'AdditionalChildren' field contains proper reference to a tenant shared media library folder and there are no broken links";
     Version     = @{
-        From = 1710;
+        From = 1000;
         To   = "*";
     };
     Script      = {
@@ -129,7 +129,7 @@ $steps =
     Title       = "Field 'Styles Optimizing Enabled'";
     Description = "Checks 'Styles Optimizing Enabled' field to determine if styles optimization is disabled";
     Version     = @{
-        From = 1710;
+        From = 1000;
         To   = "*";
     };
     Script      = {
@@ -156,7 +156,7 @@ $steps =
     Title       = "Field 'Scripts Optimizing Enabled'";
     Description = "Checks 'Scripts Optimizing Enabled' field to determine if scripts optimization is disabled";
     Version     = @{
-        From = 1710;
+        From = 1000;
         To   = "*";
     };
     Script      = {
@@ -183,7 +183,7 @@ $steps =
     Title       = "Theme for Default device";
     Description = "Checks whether any theme is assigned to a default device";
     Version     = @{
-        From = 1710;
+        From = 1000;
         To   = "*";
     };
     Script      = {
@@ -208,7 +208,7 @@ $steps =
     Title       = "Theme and Compatible Themes field consistency";
     Description = "Checks whether themes used in Theme-to-Device mapping are compatible with current site";
     Version     = @{
-        From = 1710;
+        From = 1000;
         To   = "*";
     };
     Script      = {
@@ -244,7 +244,7 @@ $steps =
     Title       = "Site definitions conflicts";
     Description = "Checks whether current site definitions have any conflicts with other sites";
     Version     = @{
-        From = 1710;
+        From = 1500;
         To   = "*";
     };
     Script      = {
