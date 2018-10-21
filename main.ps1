@@ -1,10 +1,12 @@
 Import-Function Get-CurrentSxaVersion
+Import-Function Get-TenantItem
 
 Class ValidationStep {
     [String]$Title
     [String]$Description
     [System.Object]$Script
     [System.Object]$Version
+    [ID[]]$Dependency
     [ValidationResult]$ValidationResult
 }
 
@@ -27,6 +29,23 @@ function Test-ValidVersion {
     $from = $Step.Version.From
     $to = $Step.Version.To
     $from -le $current -and ($to -eq "*" -or $to -ge $current)
+}
+
+function Test-Dependency {
+    param (
+        [ValidationStep]$Step,
+        [Sitecore.Data.Fields.MultilistField]$SitesModulesField,
+        [Sitecore.Data.Fields.MultilistField]$TenantModulesField
+    )
+    $unresolved = $Step.Dependency | ? { $_ -ne $null} | ? {
+        $SitesModulesField.Contains($_) -eq $false -and $TenantModulesField.Contains($_) -eq $false
+    }
+    if ($unresolved.Count -eq 0) {
+        $true
+    }else{
+        Write-Host "Skipping step: $($Step.Title) due to lack of required dependencies" -ForegroundColor Gray
+        $false
+    }
 }
 
 function Test-BrokenLink {
@@ -253,6 +272,7 @@ $steps =
         )
         Import-Function Get-SettingsItem
         Import-Function Get-SxaSiteDefinitions
+        [ValidationResult]$result = New-ResultObject
 
         [Item]$settingsItem = Get-SettingsItem $SiteItem
         $siteDefinitions = $settingsItem.Axes.GetDescendants() | ? { $_.TemplateID -eq "{EDA823FC-BC7E-4EF6-B498-CD09EC6FDAEF}" } | Wrap-Item | % { $_."SiteName" }
@@ -274,6 +294,12 @@ if([Sitecore.Data.Managers.TemplateManager]::GetTemplate($siteItem).InheritsFrom
     return
 }
 
+
+$TenantItem = Get-TenantItem $SiteItem
+[ID]$id = [Sitecore.XA.Foundation.Scaffolding.Templates+_Modules+Fields]::Modules
+[Sitecore.Data.Fields.MultilistField]$sitesModulesField = $SiteItem.Fields[$id]
+[Sitecore.Data.Fields.MultilistField]$tenantModulesField = $TenantItem.Fields[$id]
+
 Write-Host "Validating site: $($siteItem.Paths.Path)" -ForegroundColor Cyan
 
 # Icon mapping
@@ -282,7 +308,10 @@ $modeMapping[[Result]::Warning] = "\Images\warning.png"
 $modeMapping[[Result]::Error] = "\Images\error.png"
 $modeMapping[[Result]::OK] = "\Images\check.png"
 
-$steps | ? { Test-ValidVersion $_ } | % {
+$steps | `
+    ? { Test-ValidVersion $_ } | `
+    ? { Test-Dependency $_  $sitesModulesField $tenantModulesField } | `
+    % {
     [ValidationStep]$step = $_
     Write-Host "`nValidation step: $($step.Title)" -ForegroundColor Cyan
 
