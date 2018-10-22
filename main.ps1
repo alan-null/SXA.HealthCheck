@@ -286,6 +286,69 @@ $steps =
         }
         return $result
     }
+},
+@{
+    Title       = "Error Handling - 404";
+    Description = "Checks whether current site has 404 page configured";
+    Version     = @{
+        From = 1000;
+        To   = "*";
+    };
+    Dependency = @("{8F9355F1-F6AC-49A1-8465-0B905E3E8CAF}");
+    Script      = {
+        param(
+            [Item]$SiteItem
+        )
+        Import-Function Get-SettingsItem
+        [ValidationResult]$result = New-ResultObject
+        [ID]$id = [Sitecore.XA.Feature.ErrorHandling.Templates+_ErrorHandling+Fields]::Error404Page
+        [Item]$settingsItem = Get-SettingsItem $SiteItem
+        [Sitecore.Data.Fields.InternalLinkField]$field = $settingsItem.Fields[$id]
+
+        if ($field.TargetItem -eq $null) {
+            $result.Result = [Result]::Warning
+            $result.Message = "Error page for 404 code (Page Not Found) is not configured"
+            return $result
+        }
+        return $result
+    }
+},
+@{
+    Title       = "Error Handling - 500";
+    Description = "Checks whether current site has 500 page configured";
+    Version     = @{
+        From = 1000;
+        To   = "*";
+    };
+    Dependency = @("{8F9355F1-F6AC-49A1-8465-0B905E3E8CAF}");
+    Script      = {
+        param(
+            [Item]$SiteItem
+        )
+        Import-Function Get-SettingsItem
+        [ValidationResult]$result = New-ResultObject
+        [ID]$id = [Sitecore.XA.Feature.ErrorHandling.Templates+_ErrorHandling+Fields]::Error500Page
+        [Item]$settingsItem = Get-SettingsItem $SiteItem
+        [Sitecore.Data.Fields.InternalLinkField]$field = $settingsItem.Fields[$id]
+
+        if ($field.TargetItem -eq $null) {
+            $result.Result = [Result]::Warning
+            $result.Message = "Error page for 500 code (Server Error Page) is not configured"
+            return $result
+        }
+
+        $sitesWithoutStaticHTML = $settingsItem.Axes.GetDescendants() | `
+            ? { $_.TemplateID -eq "{EDA823FC-BC7E-4EF6-B498-CD09EC6FDAEF}" } | Wrap-Item | `
+            % { $_."SiteName" } | `
+            ? { (Test-Path ([Sitecore.IO.FileUtil]::MapPath("/ErrorPages/$($_).html"))) -eq $false }
+
+        if ($sitesWithoutStaticHTML.Count -gt 0) {
+            $result.Result = [Result]::Error
+            $result.Message = "There are sites without static HTML error page: $($sitesWithoutStaticHTML -join ', ')"
+            return $result
+        }
+        return $result
+    }
 }
 
 $siteItem = Get-Item .
