@@ -50,8 +50,8 @@ function Test-Dependency {
 
 function Test-BrokenLink {
     param (
-        [Item]$Item,
-        [ID]$FieldID
+        [Sitecore.Data.Items.Item]$Item,
+        [Sitecore.Data.ID]$FieldID
     )
     [ValidationResult]$result = New-Object ValidationResult
     $result.Result = [Result]::OK
@@ -82,9 +82,9 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
-        [ID]$id = [Sitecore.XA.Foundation.Multisite.Templates+Site+Fields]::SiteMediaLibrary
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Foundation.Multisite.Templates+Site+Fields]::SiteMediaLibrary
 
         $temp = Test-BrokenLink $SiteItem $id
         if ($temp.Result -eq [Result]::Error) {
@@ -104,9 +104,9 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
-        [ID]$id = [Sitecore.XA.Foundation.Multisite.Templates+Site+Fields]::ThemesFolder
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Foundation.Multisite.Templates+Site+Fields]::ThemesFolder
 
         $temp = Test-BrokenLink $SiteItem $id
         if ($temp.Result -eq [Result]::Error) {
@@ -126,11 +126,11 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-SiteMediaItem
         [ValidationResult]$result = New-ResultObject
-        [ID]$id = [Sitecore.XA.Foundation.Multisite.Templates+Media+Fields]::AdditionalChildren
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Foundation.Multisite.Templates+Media+Fields]::AdditionalChildren
 
         $siteMediaItem = Get-SiteMediaItem $SiteItem
         [Sitecore.Data.Fields.MultilistField]$field = $siteMediaItem.Fields[$id]
@@ -153,13 +153,13 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-PageDesignsItem
         [ValidationResult]$result = New-ResultObject
-        [ID]$id = [Sitecore.XA.Foundation.Theming.Templates+_Optimizable+Fields]::StylesOptimisingEnabled
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Foundation.Theming.Templates+_Optimizable+Fields]::StylesOptimisingEnabled
 
-        [Item]$pageDesignItem = Get-PageDesignsItem $SiteItem
+        [Sitecore.Data.Items.Item]$pageDesignItem = Get-PageDesignsItem $SiteItem
         $fieldValue = $pageDesignItem.Fields[$id].Value
 
         $state = [Sitecore.MainUtil]::GetTristate($fieldValue, [Sitecore.Tristate]::Undefined)
@@ -180,13 +180,13 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-PageDesignsItem
         [ValidationResult]$result = New-ResultObject
-        [ID]$id = [Sitecore.XA.Foundation.Theming.Templates+_Optimizable+Fields]::ScriptsOptimisingEnabled
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Foundation.Theming.Templates+_Optimizable+Fields]::ScriptsOptimisingEnabled
 
-        [Item]$pageDesignItem = Get-PageDesignsItem $SiteItem
+        [Sitecore.Data.Items.Item]$pageDesignItem = Get-PageDesignsItem $SiteItem
         $fieldValue = $pageDesignItem.Fields[$id].Value
 
         $state = [Sitecore.MainUtil]::GetTristate($fieldValue, [Sitecore.Tristate]::Undefined)
@@ -207,11 +207,11 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         [ValidationResult]$result = New-ResultObject
 
-        [ID]$defaultDeviceID = "{FE5D7FDF-89C0-4D99-9AA3-B5FBD009C9F3}"
+        [Sitecore.Data.ID]$defaultDeviceID = "{FE5D7FDF-89C0-4D99-9AA3-B5FBD009C9F3}"
         $deviceItem = Get-Item master: -ID $defaultDeviceID
         $theme = [Sitecore.XA.Foundation.Theming.ThemingContext]::new().GetThemeItem($siteItem, $deviceItem)
 
@@ -232,16 +232,16 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-PageDesignsItem
         Import-Function Get-SettingsItem
         [ValidationResult]$result = New-ResultObject
-        [ID]$themesMappingFieldID = [Sitecore.XA.Foundation.Theming.Templates+SiteTheme+Fields]::Theme
-        [ID]$compatibleThemesFieldIdD = [Sitecore.XA.Foundation.Theming.Templates+_Compatiblethemes+Fields]::Themes
+        [Sitecore.Data.ID]$themesMappingFieldID = [Sitecore.XA.Foundation.Theming.Templates+SiteTheme+Fields]::Theme
+        [Sitecore.Data.ID]$compatibleThemesFieldIdD = [Sitecore.XA.Foundation.Theming.Templates+_Compatiblethemes+Fields]::Themes
 
-        [Item]$pageDesignItem = Get-PageDesignsItem $SiteItem
-        [Item]$settingsItem = Get-SettingsItem $SiteItem
+        [Sitecore.Data.Items.Item]$pageDesignItem = Get-PageDesignsItem $SiteItem
+        [Sitecore.Data.Items.Item]$settingsItem = Get-SettingsItem $SiteItem
 
         [Sitecore.XA.Foundation.SitecoreExtensions.CustomFields.MappingField]$themesMappingFields = $pageDesignItem.Fields[$themesMappingFieldID]
         [Sitecore.Data.Fields.MultilistField]$compatibleThemesField = $settingsItem.Fields[$compatibleThemesFieldIdD]
@@ -268,13 +268,13 @@ $steps =
     };
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-SettingsItem
         Import-Function Get-SxaSiteDefinitions
         [ValidationResult]$result = New-ResultObject
 
-        [Item]$settingsItem = Get-SettingsItem $SiteItem
+        [Sitecore.Data.Items.Item]$settingsItem = Get-SettingsItem $SiteItem
         $siteDefinitions = $settingsItem.Axes.GetDescendants() | ? { $_.TemplateID -eq "{EDA823FC-BC7E-4EF6-B498-CD09EC6FDAEF}" } | Wrap-Item | % { $_."SiteName" }
 
         $sites = Get-SxaSiteDefinitions | ? { $siteDefinitions.Contains($_.Name) } | ? { $_.State -eq "Conflict" }
@@ -297,12 +297,12 @@ $steps =
     Dependency = @("{8F9355F1-F6AC-49A1-8465-0B905E3E8CAF}");
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-SettingsItem
         [ValidationResult]$result = New-ResultObject
-        [ID]$id = [Sitecore.XA.Feature.ErrorHandling.Templates+_ErrorHandling+Fields]::Error404Page
-        [Item]$settingsItem = Get-SettingsItem $SiteItem
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Feature.ErrorHandling.Templates+_ErrorHandling+Fields]::Error404Page
+        [Sitecore.Data.Items.Item]$settingsItem = Get-SettingsItem $SiteItem
         [Sitecore.Data.Fields.InternalLinkField]$field = $settingsItem.Fields[$id]
 
         if ($field.TargetItem -eq $null) {
@@ -323,12 +323,12 @@ $steps =
     Dependency = @("{8F9355F1-F6AC-49A1-8465-0B905E3E8CAF}");
     Script      = {
         param(
-            [Item]$SiteItem
+            [Sitecore.Data.Items.Item]$SiteItem
         )
         Import-Function Get-SettingsItem
         [ValidationResult]$result = New-ResultObject
-        [ID]$id = [Sitecore.XA.Feature.ErrorHandling.Templates+_ErrorHandling+Fields]::Error500Page
-        [Item]$settingsItem = Get-SettingsItem $SiteItem
+        [Sitecore.Data.ID]$id = [Sitecore.XA.Feature.ErrorHandling.Templates+_ErrorHandling+Fields]::Error500Page
+        [Sitecore.Data.Items.Item]$settingsItem = Get-SettingsItem $SiteItem
         [Sitecore.Data.Fields.InternalLinkField]$field = $settingsItem.Fields[$id]
 
         if ($field.TargetItem -eq $null) {
@@ -359,7 +359,7 @@ if([Sitecore.Data.Managers.TemplateManager]::GetTemplate($siteItem).InheritsFrom
 
 
 $TenantItem = Get-TenantItem $SiteItem
-[ID]$id = [Sitecore.XA.Foundation.Scaffolding.Templates+_Modules+Fields]::Modules
+[Sitecore.Data.ID]$id = [Sitecore.XA.Foundation.Scaffolding.Templates+_Modules+Fields]::Modules
 [Sitecore.Data.Fields.MultilistField]$sitesModulesField = $SiteItem.Fields[$id]
 [Sitecore.Data.Fields.MultilistField]$tenantModulesField = $TenantItem.Fields[$id]
 
