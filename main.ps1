@@ -354,6 +354,7 @@ $steps =
 $siteItem = Get-Item .
 [Sitecore.Data.ID]$siteTemplateID = [Sitecore.XA.Foundation.Multisite.Templates+Site]::ID
 if([Sitecore.Data.Managers.TemplateManager]::GetTemplate($siteItem).InheritsFrom($siteTemplateID) -eq $false){
+    Show-Alert "Please select a SXA site`n`nCurrent item: '$($siteItem.Paths.Path)'`nis not a SXA site item"
     return
 }
 
