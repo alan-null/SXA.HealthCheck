@@ -314,6 +314,43 @@ $steps =
     }
 },
 @{
+    Title       = "Site name";
+    Description = "Validates site name. Site names cannot contain control characters, spaces (' ') semicolons, or commas";
+    Version     = @{
+        From = 1000;
+        To   = "*";
+    };
+    Script      = {
+        param(
+            [Sitecore.Data.Items.Item]$SiteItem
+        )
+        Import-Function Get-SettingsItem
+        Import-Function Get-SxaSiteDefinitions
+        [ValidationResult]$result = New-ResultObject
+
+        [Sitecore.Data.Items.Item]$settingsItem = Get-SettingsItem $SiteItem
+        $siteDefinitions = $settingsItem.Axes.GetDescendants() | ? { $_.TemplateID -eq "{EDA823FC-BC7E-4EF6-B498-CD09EC6FDAEF}" } | Wrap-Item
+        $current = Get-CurrentSxaVersion
+        if($current -ge 1500){
+            $siteNames = $siteDefinitions | % { $_."SiteName" }
+        }else{
+            $siteNames = $siteDefinitions | % { $_.Name }
+        }
+
+        [string[]]$invaludNames = $siteNames | ? {
+            [regex]::Match($_, "^[a-zA-z0-9]*$").Success -eq $false
+        }
+
+        if ($invaludNames.Count -gt 0) {
+            $result.Result = [Result]::Error
+            $invaludNames = $invaludNames | % { "'<b>$($_)</b>'" }
+            $result.Message = "There are site definition items with incorrect site names: $($invaludNames -join ', ')"
+            return $result
+        }
+        return $result
+    }
+},
+@{
     Title       = "Error Handling - 500";
     Description = "Checks whether current site has 500 page configured";
     Version     = @{
