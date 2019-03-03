@@ -386,6 +386,49 @@ $steps =
         }
         return $result
     }
+},
+@{
+    Title       = "Maps Provider key";
+    Description = "If there is any use of Maps rendering, it checks whether maps provider key has been configured";
+    Version     = @{
+        From = 1000;
+        To   = "*";
+    };
+    Dependency  = @("{4EE33975-DB00-455E-9F9C-2CB78C892C79}");
+    Script      = {
+        param(
+            [Sitecore.Data.Items.Item]$SiteItem
+        )
+        [ValidationResult]$result = New-ResultObject
+        $mapsRenderingID = "{4DD74227-4504-4102-A802-76241F372B9E}"
+        $rendering = $SiteItem.Database.GetItem($mapsRenderingID)
+        $siteLongID = $SiteItem.Paths.LongID
+
+        $mapsRenderingUsages = [Sitecore.Globals]::LinkDatabase.GetItemReferrers($rendering, $false) | `
+            ? { ($_.SourceFieldID -eq [Sitecore.FieldIDs]::LayoutField) -or ($_.SourceFieldID -eq [Sitecore.FieldIDs]::FinalLayoutField) } | `
+            ? { $_.TargetDatabaseName -eq $rendering.Database.Name } | `
+            % { $rendering.Database.GetItem($_.SourceItemID) } | `
+            ? { $_ -ne $null } | `
+            ? { $_.Paths.LongID.StartsWith($siteLongID) }
+
+        $instance = [Sitecore.DependencyInjection.ServiceLocator]::ServiceProvider
+        $mapsProvider = $instance.GetType().GetMethod('GetService').Invoke($instance, [Sitecore.XA.Foundation.Geospatial.Services.IMapsProvider])
+        $key = $mapsProvider.GetMapsKey($SiteItem)
+
+
+        if ([string]::IsNullOrWhiteSpace($key) -eq $true) {
+            if ($mapsRenderingUsages.Count -gt 0) {
+                $result.Result = [Result]::Error
+                $result.Message = "Found $($mapsRenderingUsages.Count) useages of <b>Maps</b> rendering in selected site but <b>Maps Provider key</b> is empty."
+                $mapsRenderingUsages | % { Write-Log "[SXA.HealthCheck][Maps Provider key] $($_.Paths.Path)" }
+            }else{
+                $result.Result = [Result]::Warning
+                $result.Message = "<b>Maps Provider key</b> is empty. If you are not going to use <b>Maps</b> rendering that's fine."
+            }
+            return $result
+        }
+        return $result
+    }
 }
 
 $siteItem = Get-Item .
