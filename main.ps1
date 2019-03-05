@@ -429,6 +429,74 @@ $steps =
         }
         return $result
     }
+},
+@{
+    Title       = "SXA Best practices - unused data sources";
+    Description = "Checks whether there are unused data sources present in your site";
+    Version     = @{
+        From = 1800;
+        To   = "*";
+    };
+    Dependency  = @("{4EE33975-DB00-455E-9F9C-2CB78C892C79}");
+    Script      = {
+        param(
+            [Sitecore.Data.Items.Item]$SiteItem
+        )
+        [ValidationResult]$result = New-ResultObject
+        Import-Function CleanDataFolder
+
+        function Get-RelativeDatasourcePath {
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory = $true, Position = 0 )]
+                [Item]$Item
+            )
+
+            process {
+                Import-Function Get-PresentationDetails
+                Write-Verbose "Cmdlet Get-RelativeDatasourcePath - Process"
+                $presentation = Get-PresentationDetails $item
+                $definition = [Sitecore.Layouts.LayoutDefinition]::Parse($presentation)
+                $definition.Devices | % {
+                    $_.Renderings | ? { $_.Datasource -ne $null } | ? {
+                        $_.Datasource.StartsWith([Sitecore.XA.Foundation.LocalDatasources.Constants]::LocalPrefix) -or $_.Datasource.StartsWith([Sitecore.XA.Foundation.LocalDatasources.Constants]::PageRelativePrefix)
+                    } | % {
+                        $_.Datasource.Replace([Sitecore.XA.Foundation.LocalDatasources.Constants]::LocalPrefix, "").Replace([Sitecore.XA.Foundation.LocalDatasources.Constants]::PageRelativePrefix, "")
+                    }
+                }
+            }
+        }
+
+        $item = $SiteItem.Axes.GetDescendants() | ? { $_.TemplateID -eq "{1C82E550-EBCD-4E5D-8ABD-D50D0809541E}" } | Wrap-Item
+        $unusedDatasources = $item | % {
+            $item = $_.Parent
+            $dataFolder = $_
+
+            [Item[]]$dataSources = Get-NestedDatasource $dataFolder
+
+            $dataSourcesPaths = Get-RelativeDatasourcePath $item
+            $dataSourcesIds = Get-DataSourcesIdsFromLayout $item
+
+            foreach ($datasource in $dataSources) {
+                $usedAsPageRelative = IsDataSourceUsedAsPageRelative $datasource $dataSourcesPaths
+                $usedAsGlobal = IsDataSourceUsedAsGlobal $datasource
+                $usedAsGlobalOnCurrentPage = IsDataSourceUsedAsGlobalOnCurrentPage $datasource $dataSourcesIds
+
+                if ($usedAsPageRelative -or $usedAsGlobal -or $usedAsGlobalOnCurrentPage) {
+                }
+                else {
+                    Write-Log "[SXA.HealthCheck][Unused data sources] Following data source is probably unused and could be recycled: $($datasource.Paths.Path)"
+                    $datasource
+                }
+            }
+        }
+
+        if ($unusedDatasources.Count -gt 0) {
+            $result.Result = [Result]::Warning
+            $result.Message = "Found unused datasources ($($unusedDatasources.Count)). Open <b>SPE</b> log file to learn more"
+        }
+        return $result
+    }
 }
 
 $siteItem = Get-Item .
