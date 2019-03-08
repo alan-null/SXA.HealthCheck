@@ -74,6 +74,50 @@ function New-ResultObject {
 
 $steps =
 @{
+    Title       = "SXA Best practices - limit the number of renderings on a page";
+    Description = "Checks whether there are pages with more than 30 renderings";
+    Version     = @{
+        From = 1000;
+        To   = "*";
+    };
+    Script      = {
+        param(
+            [Sitecore.Data.Items.Item]$SiteItem
+        )
+        [ValidationResult]$result = New-ResultObject
+        function Get-PresentationDetails($Item) {
+            Write-Verbose "Cmdlet Get-PresentationDetails - Process"
+            $layoutFieldValue = $Item.Fields[[Sitecore.FieldIDs]::LayoutField].Value
+            $finalLayoutFieldValue = $Item.Fields[[Sitecore.FieldIDs]::FinalLayoutField].Value
+            [Sitecore.Data.Fields.XmlDeltas]::ApplyDelta($layoutFieldValue, $finalLayoutFieldValue)
+        }
+        function Test-ExceededRenderingsLimit($pageItem){
+            $presentation = Get-PresentationDetails $pageItem
+            $definition = [Sitecore.Layouts.LayoutDefinition]::Parse($presentation)
+            $d = $definition.Devices | ? {
+                $_.Renderings.Count -gt 30
+            }
+            $d.Count -gt 0
+        }
+
+        $pages = $SiteItem.Axes.GetDescendants() | `
+            ? { [Sitecore.Data.Managers.TemplateManager]::GetTemplate($_).InheritsFrom([Sitecore.XA.Foundation.Multisite.Templates+Page]::ID) } | `
+            ? { Test-ExceededRenderingsLimit $_ }
+
+        if ($pages.Count -gt 0) {
+            $result.Result = [Result]::Warning
+            $result.Message = "Do not use too many renderings on a page; we recommend absolutely no more than 30. Having too many editable renderings on a single page can slow down the Experience Editor</br><b>Affected pages:</b>"
+            $pages | % {
+                $id = $_.ID
+                $name = $_.Name
+                $result.Message += ", <a onclick=`"javascript:return window.top.scForm.postEvent(this,event,'item:load(id=$id)')`" href=`"#`" style='color: red;'>$name</a>"
+            }
+        }
+
+        return $result
+    }
+},
+@{
     Title       = "Field 'SiteMediaLibrary'";
     Description = "Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item";
     Version     = @{
