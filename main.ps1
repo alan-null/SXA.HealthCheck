@@ -118,6 +118,32 @@ $steps =
     }
 },
 @{
+    Title            = "SXA Best practices - media under virtual media folder";
+    Description      = "Checks whether there are media items stored directly under virtual media folder";
+    Version          = @{
+        From = 1000;
+        To   = "*";
+    };
+    Script           = {
+        param(
+            [Sitecore.Data.Items.Item]$SiteItem
+        )
+
+        Import-Function Get-SiteMediaItem
+        [ValidationResult]$result = New-ResultObject
+
+        $mediaVirtualFolder = Get-SiteMediaItem $SiteItem
+        $mediaItems = $mediaVirtualFolder.Children | ? {
+            [Sitecore.Data.Managers.TemplateManager]::GetTemplate($_).InheritsFrom([Sitecore.TemplateIDs]::UnversionedFile) -or [Sitecore.Data.Managers.TemplateManager]::GetTemplate($_).InheritsFrom([Sitecore.TemplateIDs]::VersionedFile)
+        }
+        if ($mediaItems.Count -gt 0) {
+            $result.Result = [Result]::Error
+            $result.Message = "Do not store media items under <b>Virtual Media Folder</b>"
+        }
+        return $result
+    }
+},
+@{
     Title       = "Field 'SiteMediaLibrary'";
     Description = "Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item";
     Version     = @{
