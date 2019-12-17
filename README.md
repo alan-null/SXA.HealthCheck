@@ -2,12 +2,12 @@
 
 **SXA.HealthCheck** is a Power Shell script used to determine health status of SXA site.
 
-I contains a set of steps. Each step checks different thing in SXA solution and provies possible solution
+It consists of validation steps. Each step checks different thing in SXA solution and provides possible solution
 
-
-# Usage
+## Usage
 
 ### Executing
+
 1. Open the latest version of [**main.ps1**](https://raw.githubusercontent.com/alan-null/SXA.HealthCheck/master/main.ps1)
 2. Copy content to a clipboard
 3. Open PowerShell ISE (`http://domain/sitecore/shell/Applications/PowerShell/PowerShellIse?sc_bw=1`)
@@ -21,9 +21,21 @@ Steps will be executed one by one and you will see continuous results on the con
 
 Once the whole procedure is done you will see List View with validation results
 
-
 ![list-view](https://user-images.githubusercontent.com/6848691/47311513-3c205800-d63a-11e8-9ffc-9898b902bfc7.png)
 
+### Executing - remote script
+
+If you want to automate validation process and get the most recent version simply invoke this expression
+
+```PowerShell
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
+$response = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/alan-null/SXA.HealthCheck/master/main.ps1" -UseBasicParsing
+if($response.StatusCode -eq 200){
+    Invoke-Expression $response.Content
+}
+```
+
+It will fetch the latest version of [**main.ps1**](https://raw.githubusercontent.com/alan-null/SXA.HealthCheck/master/main.ps1) script and let you invoke it inside **ISE**.
 
 ### Reading results
 
@@ -35,7 +47,8 @@ There are 3 possible results of validation:
 
 For **Error** and **Warning** you will see message in the 4th column. It describes the problem and suggests what you could do to solve it
 
-# Validation steps
+## Validation steps
+
 | Title   |      Description      |  From | To |
 |:----------|:-------------|:------|:------|
 | **Error Handling - 404** | Checks whether current site has 404 page configured | `1000` | `*` |
