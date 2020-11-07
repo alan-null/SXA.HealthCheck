@@ -49,20 +49,21 @@ For **Error** and **Warning** you will see message in the 4th column. It describ
 
 ## Validation steps
 
-| Title   |      Description      |  From | To |
-|:----------|:-------------|:------|:------|
-| **Error Handling - 404** | Checks whether current site has 404 page configured | `1000` | `*` |
-| **Error Handling - 500** | Checks whether current site has 500 page configured | `1000` | `*` |
-| **Field 'AdditionalChildren'** | Checks whether 'AdditionalChildren' field contains proper reference to a tenant shared media library folder and there are no broken links | `1000` | `*` |
-| **Field 'Scripts Optimizing Enabled'** | Checks 'Scripts Optimizing Enabled' field to determine if scripts optimization is disabled | `1000` | `*` |
-| **Field 'Styles Optimizing Enabled'** | Checks 'Styles Optimizing Enabled' field to determine if styles optimization is disabled | `1000` | `*` |
-| **Maps Provider key** | If there is any use of Maps rendering, it checks whether maps provider key has been configured | `1000` | `*` |
-| **Site name** | Validates site name. Site names cannot contain control characters, spaces (' ') semicolons, or commas | `1000` | `*` |
-| **SXA Best practices - limit the number of renderings on a page** | Checks whether there are pages with more than 30 renderings | `1000` | `*` |
-| **SXA Best practices - media under virtual media folder** | Checks whether there are media items stored directly under virtual media folder | `1000` | `*` |
-| **Theme and Compatible Themes field consistency** | Checks whether themes used in Theme-to-Device mapping are compatible with current site | `1000` | `*` |
-| **Theme for Default device** | Checks whether any theme is assigned to a default device | `1000` | `*` |
-| **Field 'SiteMediaLibrary'** | Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item | `1400` | `*` |
-| **Field 'ThemesFolder'** | Checks whether 'ThemesFolder' field contains proper reference to a site specific themes folder item | `1400` | `*` |
-| **Site definitions conflicts** | Checks whether current site definitions have any conflicts with other sites | `1500` | `*` |
-| **SXA Best practices - unused data sources** | Checks whether there are unused data sources present in your site | `1800` | `*` |
+| Title                                                             | Description                                                                                                                               | From   | To   |
+| ----------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------- | :----- | :--- |
+| **Error Handling - 404**                                          | Checks whether current site has 404 page configured                                                                                       | `1000` | `*`  |
+| **Error Handling - 500**                                          | Checks whether current site has 500 page configured                                                                                       | `1000` | `*`  |
+| **Field 'AdditionalChildren'**                                    | Checks whether 'AdditionalChildren' field contains proper reference to a tenant shared media library folder and there are no broken links | `1000` | `*`  |
+| **Field 'Scripts Optimizing Enabled'**                            | Checks 'Scripts Optimizing Enabled' field to determine if scripts optimization is disabled                                                | `1000` | `*`  |
+| **Field 'Styles Optimizing Enabled'**                             | Checks 'Styles Optimizing Enabled' field to determine if styles optimization is disabled                                                  | `1000` | `*`  |
+| **Maps Provider key**                                             | If there is any use of Maps rendering, it checks whether maps provider key has been configured                                            | `1000` | `*`  |
+| **Site name**                                                     | Validates site name. Site names cannot contain control characters, spaces (' ') semicolons, or commas                                     | `1000` | `*`  |
+| **SXA Best practices - custom items under SXA nodes**             | Checks whether there are additional or modified files under SXA nodes                                                                     | `1000` | `*`  |
+| **SXA Best practices - limit the number of renderings on a page** | Checks whether there are pages with more than 30 renderings                                                                               | `1000` | `*`  |
+| **SXA Best practices - media under virtual media folder**         | Checks whether there are media items stored directly under virtual media folder                                                           | `1000` | `*`  |
+| **Theme and Compatible Themes field consistency**                 | Checks whether themes used in Theme-to-Device mapping are compatible with current site                                                    | `1000` | `*`  |
+| **Theme for Default device**                                      | Checks whether any theme is assigned to a default device                                                                                  | `1000` | `*`  |
+| **Field 'SiteMediaLibrary'**                                      | Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item                                   | `1400` | `*`  |
+| **Field 'ThemesFolder'**                                          | Checks whether 'ThemesFolder' field contains proper reference to a site specific themes folder item                                       | `1400` | `*`  |
+| **Site definitions conflicts**                                    | Checks whether current site definitions have any conflicts with other sites                                                               | `1500` | `*`  |
+| **SXA Best practices - unused data sources**                      | Checks whether there are unused data sources present in your site                                                                         | `1800` | `*`  |
