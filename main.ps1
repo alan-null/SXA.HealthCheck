@@ -8,6 +8,7 @@ Class ValidationStep {
     [System.Object]$Version
     [ID[]]$Dependency
     [ValidationResult]$ValidationResult
+    [String]$DocumentationUrl
 }
 
 enum Result {
@@ -145,13 +146,41 @@ $steps =
     }
 },
 @{
-    Title       = "Field 'SiteMediaLibrary'";
-    Description = "Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item";
+    Title       = "SXA Best practices - tokens in Source field";
+    Description = "Checks whether there are fields with empty <b>Source</b> field.";
     Version     = @{
-        From = 1400;
+        From = 1800;
         To   = "*";
     };
     Script      = {
+        param(
+            [Sitecore.Data.Items.Item]$SiteItem
+        )
+        Import-Function Get-TenantTemplatesRoot
+        Import-Function Get-FieldSourceMapping
+
+        $ttr = Get-TenantTemplatesRoot $SiteItem
+        $mapping = Get-FieldSourceMapping
+
+        $fieldsWithNoSource = $ttr.Axes.GetDescendants() | ? { $_.TemplateName -eq "Template field" } | Wrap-Item | ? { $mapping.Contains($_.Type) } | ? { $_.Fields["Source"].Value -eq "" }
+
+        [ValidationResult]$result = New-ResultObject
+        if ($fieldsWithNoSource.Count -gt 0) {
+            $result.Result = [Result]::Warning
+            $result.Message = "There is at least one field with empty Source field. Run source field reports to help set the data source context for your tenant templates"
+        }
+        return $result
+    }
+},
+@{
+    Title            = "Field 'SiteMediaLibrary'";
+    Description      = "Checks whether 'SiteMediaLibrary' field contains proper reference to a site specific media library item";
+    DocumentationUrl = "https://github.com/alan-null/sc_ext/wiki/Commands#AdminShortcuts";
+    Version          = @{
+        From = 1400;
+        To   = "*";
+    };
+    Script           = {
         param(
             [Sitecore.Data.Items.Item]$SiteItem
         )
@@ -406,7 +435,7 @@ $steps =
             $siteNames = $siteDefinitions | % { $_."SiteName" }
         }
         else {
-            $siteNames = $siteDefinitions | % { $_.Name }
+            $siteNames = $siteDefinitions | % { $_.Name }x
         }
 
         [string[]]$invaludNames = $siteNames | ? {
@@ -693,7 +722,7 @@ $modeMapping[[Result]::Warning] = "\Images\warning.png"
 $modeMapping[[Result]::Error] = "\Images\error.png"
 $modeMapping[[Result]::OK] = "\Images\check.png"
 
-$steps | `
+$steps | Select-Object -First 2 | `
     ? { Test-ValidVersion $_ } | `
     ? { Test-Dependency $_  $sitesModulesField $tenantModulesField } | `
     % {
@@ -710,6 +739,12 @@ $steps | `
     }
     if ($result.Result -eq [Result]::OK) {
         Write-Host $result.Message -ForegroundColor Green
+    }
+    if ($_.DocumentationUrl) {
+        if (($result.Result -eq [Result]::Warning) -or $result.Result -eq [Result]::Error) {
+            $url = $_.DocumentationUrl
+            $result.Message = $result.Message + "</br><a href='' onclick='window.open(`"$url`", `"_blank`")'><b>Learn More</b></a>"
+        }
     }
     $step
 
